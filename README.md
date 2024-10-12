@@ -1,6 +1,6 @@
 # Candy-Saga
 
-* AJ: Main Character, Villian
+* AJ: Main Character, Villain
 * Alex: Candy Logic
 * Rocky: Background & Assets
 
