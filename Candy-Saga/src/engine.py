@@ -1,6 +1,9 @@
+
+from pygame.locals import *
 import pygame
 import sys
-from pygame.locals import *
+from hero import Hero
+from villain import Villain
 
 # Initialize pygame
 pygame.init()
@@ -14,59 +17,50 @@ pygame.display.set_caption("Candy Saga")
 # Set up the clock for frame rate control
 clock = pygame.time.Clock()
 
-# Define your Object and Hero classes
-class Object:
-    def __init__(self, hp, name, power, x, y, width, height, speed, sprite_sheet_path, num_frames):
-        self.hp = hp
-        self.name = name
-        self.power = power
-        self.x = x
-        self.y = y
-        self.width = width  # Adjusted for each frame's width
-        self.height = height  # Adjusted for the frame's height
-        self.speed = speed
+# Create the hero with a valid num_frames
+hero = Hero(100, 'Candy Cane Crusader', 50, 100, 100, 50, 100, 5, num_frames=1)
 
-        # Load the sprite sheet
-        try:
-            self.sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
-        except pygame.error as e:
-            print(f"Error loading sprite sheet: {e}")
+# Create villains with valid num_frames
+villains = [
+    Villain(90, 'Licorice Lurker', 25, 150, 200, 50, 50, 3, num_frames=1)
+]
+
+
+# Main game loop
+
+while True:
+    window.fill((0, 0, 0))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
             sys.exit()
 
-        # Animation variables
-        self.num_frames = num_frames
-        self.current_frame = 0
-        self.animation_speed = 5  # Controls the speed of the animation
-        self.frame_count = 0
+    # Handle movement and draw hero
+    hero.movement()
 
-        # Extract frames from the sprite sheet
-        self.frames = []
-        for i in range(self.num_frames):
-            frame = self.sprite_sheet.subsurface(pygame.Rect(i * self.width, 0, self.width, self.height))
-            self.frames.append(frame)
+    # Check for shooting input
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:  # Press space to shoot
+        hero.shoot()
 
-    def draw(self, window):
-        # Draw the current frame of animation
-        window.blit(self.frames[self.current_frame], (self.x, self.y))
+    hero.update_bullets()  # Update bullets
+    hero.draw(window)
 
-    def update_animation(self):
-        self.frame_count += 1
-        if self.frame_count >= self.animation_speed:
-            self.frame_count = 0
-            self.current_frame = (self.current_frame + 1) % self.num_frames
+    # Handle villains
+    for villain in villains:
+        villain.draw(window)
 
-    def movement(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.x -= self.speed
-            self.update_animation()  # Update animation when moving
-        if keys[pygame.K_RIGHT]:
-            self.x += self.speed
-            self.update_animation()
-        if keys[pygame.K_UP]:
-            self.y -= self.speed
-            self.update_animation()
-        if keys[pygame.K_DOWN]:
-            self.y += self.speed
-            self.update_animation()
+        # Check for bullet collisions with villains
+        for bullet in hero.bullets:
+            if (bullet.is_active and
+                    bullet.x < villain.x + villain.width and bullet.x + bullet.width > villain.x and
+                    bullet.y < villain.y + villain.height and bullet.y + bullet.height > villain.y):
 
+                if villain.take_damage(bullet.damage):  # Deal damage with bullet's damage
+                    # Collect candy (assuming defeating a villain gives 10 candy)
+                    hero.collect_candy(10)
+                bullet.is_active = False  # Deactivate bullet after hit
+
+    pygame.display.update()
+    clock.tick(60)
