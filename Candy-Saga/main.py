@@ -28,8 +28,14 @@ class Game:
         if is_defeated:
             self.explode_candy()
 
-    def explode_candy(self):
-        print("Candy explosion! Main character can collect the candies.")
+def explode_candy(self):
+    print("Candy explosion! The main character can collect candy.")
+    # Scatter collectible candies
+    collectible_candies = [ChocolateCandy(), GummyCandy()]
+    for candy in collectible_candies:
+        print(f"Collected {candy.__class__.__name__} with worth {candy.get_worth()}!")
+        # Update player's HP and strength (not yet implemented)
+
 
 def game_loop():
     villain = Villain(100)  # 100 HP
