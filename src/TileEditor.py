@@ -2,6 +2,7 @@ import pygame
 import os
 import json
 import math
+
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 WORLD_WIDTH = 100
@@ -14,6 +15,7 @@ class Level:
     def __init__(self, manager) -> None:
         self.data = {}
         self.tiles = []
+        self.borders = {}
         self.manager = manager
 
     def assignData(self):
@@ -36,6 +38,38 @@ class Level:
                 index += 1
 
             index += WORLD_HEIGHT - TILEAMOUNT_Y
+    def assignBorders(self, width, height):
+        self.borders['left'] = 0
+        self.borders['bottom'] = height * TILE_SIZE - TILEAMOUNT_Y * TILE_SIZE
+        self.borders['top'] = 0
+        self.borders['right'] = width * TILE_SIZE - TILEAMOUNT_X * TILE_SIZE
+        
+
+
+    def update(self, scrollx, scrolly):
+        tile : Tile
+        for tile in self.tiles:
+            x = tile.x - scrollx
+            y = tile.y - scrolly
+            loopCapX = math.ceil(SCREEN_WIDTH/ TILE_SIZE) * TILE_SIZE
+            loopCapY = math.ceil(SCREEN_HEIGHT/ TILE_SIZE) * TILE_SIZE 
+            offset = TILE_SIZE
+
+            if (x > loopCapX):
+                tile.id -= TILEAMOUNT_X * WORLD_HEIGHT
+            if (x < -offset):
+                tile.id += TILEAMOUNT_X * WORLD_HEIGHT
+            if (y < -offset):
+                tile.id += TILEAMOUNT_Y
+            if (y > loopCapY): 
+                tile.id -= TILEAMOUNT_Y
+            tile.x = self.data[tile.id].x
+            tile.y = self.data[tile.id].y
+            tile.coll = self.data[tile.id].coll
+            tile.img = self.data[tile.id].img
+            tile.type = self.data[tile.id].type
+            tile.rect.topleft = (tile.x, tile.y)
+
 
         
 
@@ -73,6 +107,7 @@ class Manager:
             # Assign tile images
             level.assignData()
             level.assignTiles()
+            level.assignBorders(width, height)
             levels.append(level)
         return levels
     
@@ -88,7 +123,8 @@ class Manager:
         # Store them in the dictionary
         images = {
             'grass': grass_img,
-            'dirt': dirt_img
+            'dirt': dirt_img,
+            'empty': None
         }
 
         return images
@@ -116,6 +152,7 @@ class Tile:
         self.rect = pygame.Rect(0, 0, TILE_SIZE, TILE_SIZE)
         self.id = None
     def update(self):
+
         pass
 
 
