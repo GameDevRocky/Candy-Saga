@@ -144,7 +144,7 @@ class Manager:
         return levels, background
     
     def ReadTileSheet(self):
-        tileSheet = pygame.image.load('Candy-Saga/assets/Terrain (16x16).png').convert_alpha()
+        tileSheet = pygame.image.load('Candy-Saga/assets/Images/Terrain (16x16).png').convert_alpha()
         # Extracting specific tile images from the sheet
         dirt_img = tileSheet.subsurface(16 * 7, 16, 16, 16)
         grass_img = tileSheet.subsurface(16 * 7, 0, 16, 16)
